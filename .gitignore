@@ -3,4 +3,4 @@
 **/target/*
 *.class
 *.jar
-ignite/*
+/apache-ignite-101/ignite/

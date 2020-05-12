@@ -3,8 +3,14 @@ package ignite.beginner;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Ignite101Main {
+
+    private static final Logger logger = LogManager.getLogger(Ignite101Main.class);
+
     public static void main(String[] args) throws Exception {
 //        helloWorld();
 
@@ -45,17 +51,17 @@ public class Ignite101Main {
     /**
      * First program to start Ignite server instance by creating a basic cache doing putting and pulling operations
      */
-    private static void helloWorld() {
+    public static void helloWorld() {
         try(Ignite ignite = Ignition.start()) {
             IgniteCache<Integer, String> cache = ignite.getOrCreateCache("firstIgniteCache");
 
             for (int i = 0; i < 10; i++) {
                 cache.put(i, Integer.toString(i));
             }
-            System.out.println("Added elements to cache");
+            logger.log(Level.INFO, "Added elements to cache");
 
             for (int i = 0; i < 10; i++) {
-                System.out.println(String.format("Fetched - key: %d, value: %s", i, cache.get(i)));
+                logger.log(Level.INFO, "Fetched - key: {}, value: {}", i, cache.get(i));
             }
         }
     }
