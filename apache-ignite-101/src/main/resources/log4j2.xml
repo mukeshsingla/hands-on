@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Properties>
+        <Property name="basePath">/home/msingla/dev/logs</Property>
+        <Property name="appName">${sys:appName}</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="fileLogger" fileName="${basePath}/${appName}.log" filePattern="${basePath}/${appName}.log.%d{yyyy-MM-dd}">
+            <PatternLayout>
+                <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+        </RollingFile>
+
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout   pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!--<Logger name="com.howtodoinjava" level="debug" additivity="true">
+            <appender-ref ref="fileLogger" level="debug" />
+        </Logger>-->
+        <Root level="info" additivity="false">
+            <!--<appender-ref ref="console" />-->
+            <appender-ref ref="fileLogger" />
+        </Root>
+    </Loggers>
+</Configuration>
