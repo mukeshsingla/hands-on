@@ -7,45 +7,52 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Map;
+
 public class Ignite101Main {
 
     private static final Logger logger = LogManager.getLogger(Ignite101Main.class);
 
     public static void main(String[] args) throws Exception {
 //        helloWorld();
-
-//        Clustering101.Node.runClientNode(1);
-//        Clustering101.Node.runServerNodeUsingMulticastIP();
-//        Clustering101.Node.runServerNodeUsingMulticastWithoutIP();
-//        Clustering101.Node.runServerNodeUsingStaticIPs("127.0.0.1:47501..47510");
-//        Clustering101.ClusterGroup.runServerNodeBroadcastingComputeTask2AllNodes();
-//        Clustering101.ClusterGroup.runServerNodeBroadcastingComputeTask2RemoteNodes();
-
-//        Clustering101.Node.runClientNodeUsingCacheForSystemTimeInMillis("systemTimeInMillis");
+        
+//        Clustering101.Node101.runBasicClientNode(1);
+//        Clustering101.Node101.runBasicServerNode(1);
+//
+//        Clustering101.Node101.runClientNode(1);
+//        Clustering101.Node101.runServerNodeUsingMulticastIP();
+//        Clustering101.Node101.runServerNodeUsingMulticastWithoutIP();
+//        Clustering101.Node101.runServerNodeUsingStaticIPs("127.0.0.1:47501..47510");
+//        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2AllNodes();
+//        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2RemoteNodes();
+//
+//        Clustering101.Node101.runClientNodeCreatingAndUsingCacheForSystemTimeInMillis("systemTimeInMillis");
 //        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2DataNodesWithCacheName("systemTimeInMillis", "ALL_NODES");
 //        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2DataNodesWithCacheName("systemTimeInMillis", "DATA_NODES");
 //        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2DataNodesWithCacheName("systemTimeInMillis", "CLIENT_NODES");
-
-//        Clustering101.Node.runServerNodeWithUserAttributes(Map.of("instance", "1"));
+//
+//        Clustering101.Node101.runServerNodeWithUserAttributes(Map.of("instance", "1"));
 //        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2NodesWithAttributeKeyValue("instance", "1");
-
+//
 //        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2NodesBasedOnAge();
-
-//        Clustering101.Node.runClientNode(1);
-//        Clustering101.Node.runServerNodeUsingMulticastWithoutIP();
+//
+//        Clustering101.Node101.runClientNode(1);
+//        Clustering101.Node101.runServerNodeUsingMulticastWithoutIP();
 //        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2LocalNode();  // Only on same instance
-
-//        Clustering101.Node.runClientNode(1);
-//        Clustering101.Node.runClientNode(2);
-//        Clustering101.Node.runClientNode(3);
+//
+//        Clustering101.Node101.runClientNode(1);
+//        Clustering101.Node101.runClientNode(2);
+//        Clustering101.Node101.runClientNode(3);
 //        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2ClientNodes();
-
-//        Clustering101.Node.runClientNode(1);
-//        Clustering101.Node.runServerNodeUsingMulticastWithoutIP();
+//
+//        Clustering101.Node101.runClientNode(1);
+//        Clustering101.Node101.runServerNodeUsingMulticastWithoutIP();
 //        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2ServerNodes();
+//
+//        Clustering101.Node101.runServerNodeUsingMulticastWithoutIP();
+//        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2NodesBasedOnMetrics();
 
-//        Clustering101.Node.runServerNodeUsingMulticastWithoutIP();
-        Clustering101.ClusterGroup101.runServerNodeBroadcastingComputeTask2NodesBasedOnMetrics();
+        InMemoryDataGrids101.JCacheBasedDataGrid.runReplicatedAtomicLRUCacheServerNode();
     }
 
     /**
