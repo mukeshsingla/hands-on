@@ -2,6 +2,7 @@ package ignite.beginner;
 
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.cache.CacheEntryProcessor;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.cache.eviction.lru.LruEvictionPolicyFactory;
 import org.apache.ignite.configuration.CacheConfiguration;
@@ -9,6 +10,12 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.cache.configuration.CacheEntryListenerConfiguration;
+import javax.cache.configuration.Factory;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
+import javax.cache.event.*;
+import javax.cache.processor.EntryProcessorException;
+import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,12 +57,27 @@ public class InMemoryDataGrids101 {
                             .setCacheConfiguration(getReplicatedAtomicOnHeapLRUCacheConfig(cacheName)))
                     .execute(ignite -> {
                         IgniteCache<Key, Value> cache = ignite.getOrCreateCache(cacheName);
-                        cache.putAll(Map.copyOf(getDummyDataMap(10)));
+                        // Adding to cache normally
+//                        cache.putAll(Map.copyOf(getDummyDataMap(10)));
+                        // Adding to cache using EntryProcessor
+                        cache.invokeAll(getDummyDataMap(10).keySet(), getCacheEntryProcessor());
+
                         for (int i = 0; i < 10; i++) {
                             logger.log(Level.INFO, String.format("Key: %d, Value: %s", i, cache.get(new Key(i))));
                         }
                         Thread.sleep(999999999);
                     });
+        }
+
+        private static CacheEntryProcessor<Key, Value, Object> getCacheEntryProcessor() {
+            return new CacheEntryProcessor<Key, Value, Object>() {
+                @Override
+                public Object process(MutableEntry<Key, Value> entry, Object... arguments) throws EntryProcessorException {
+                    Value value = new Value(String.format("%s updated", entry.getKey().getKey()));
+                    entry.setValue(value);
+                    return value;
+                }
+            };
         }
 
         private static CacheConfiguration getReplicatedAtomicOnHeapLRUCacheConfig(String cacheName) {
@@ -64,8 +86,24 @@ public class InMemoryDataGrids101 {
                     .setCacheMode(CacheMode.REPLICATED)
                     .setAtomicityMode(CacheAtomicityMode.ATOMIC)
                     .setOnheapCacheEnabled(true)
-                    .setEvictionPolicyFactory(new LruEvictionPolicyFactory<Key, Value>(8));
+                    .setEvictionPolicyFactory(new LruEvictionPolicyFactory<Key, Value>(8))
+                    .addCacheEntryListenerConfiguration(new MutableCacheEntryListenerConfiguration<Key, Value>(cacheEntryCreatedListenerFactory(), cacheEntryEventFilterFactory(), true, true));
             return cacheConfig;
+        }
+
+        private static Factory<CacheEntryListener<Key, Value>> cacheEntryCreatedListenerFactory() {
+            return (Factory<CacheEntryListener<Key, Value>>) () -> (CacheEntryCreatedListener<Key, Value>) cacheEntryEvents -> {
+                cacheEntryEvents.forEach(event -> logger.log(Level.INFO, "CreatedEventsListener - CreatedEvent for {}", event.getValue()));
+            };
+        }
+
+        private static Factory<CacheEntryEventFilter<Key, Value>> cacheEntryEventFilterFactory() {
+            return (Factory<CacheEntryEventFilter<Key, Value>>) () -> (CacheEntryEventFilter<Key, Value>) cacheEntryEvent -> {
+                Key key = cacheEntryEvent.getKey();
+                boolean filteredTrue = key.getKey() % 2 == 0;
+                logger.log(Level.INFO, "Key: {}, {}", key.getKey(), filteredTrue ? "Filtered" : "Excluded");
+                return filteredTrue;
+            };
         }
     }
 
@@ -92,6 +130,11 @@ public class InMemoryDataGrids101 {
         @Override
         public int hashCode() {
             return Objects.hash(key);
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(key);
         }
     }
 
