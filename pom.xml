@@ -11,6 +11,7 @@
 
     <modules>
         <module>apache-ignite-101</module>
+        <module>db-101</module>
     </modules>
 
     <properties>
