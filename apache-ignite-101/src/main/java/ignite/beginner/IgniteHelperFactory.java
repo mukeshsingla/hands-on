@@ -20,7 +20,7 @@ public class IgniteHelperFactory {
 
     /**
      * Returns instance of <code>IgniteConfiguration</code> configured to use Log4j2 for logging<BR/>
-     * Peer class loading - Inter-node byte-code exchange.
+     * Peer class loading - Inter-node byte-code exchange.<BR/>
      * Activates special distributed ClassLoader, if enabled, will automatically redeploy
      * Java/Scala code on every node in grid each time the code changes
      *

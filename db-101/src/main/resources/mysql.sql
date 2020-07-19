@@ -31,7 +31,172 @@ GRANT ALL ON sakila.* TO 'msingla'@'172.17.0.1';
 
 
 -- Datewise
-------------
+-- ----------
+
+-- 2020-06-05
+-- - Views: Gives flexibility in the form of abstraction
+DESCRIBE customer_list;
+--   - Used for
+--     - Data Security
+--     - Data Aggregation
+--     - Hiding Complexity
+--     - Joining Partitioned Data: PROD + Archived / Current + Historic - Using UNION ALL, etc.
+
+--   - Updatable Views: Only updates allowed not inserts and only when conditions are met
+
+CREATE VIEW film_category_actor AS
+    SELECT f.title, c.name as category_name, a.first_name, a.last_name from film f
+        INNER JOIN film_category fc on f.film_id = fc.film_id
+        INNER JOIN category c on fc.category_id = c.category_id
+        INNER JOIN film_actor fa on f.film_id = fa.film_id
+        INNER JOIN actor a on fa.actor_id = a.actor_id;
+
+SELECT title, category_name, first_name, last_name FROM film_category_actor WHERE last_name = 'FAWCETT';
+
+DESC country;
+DESC rental;
+DESC payment;
+SELECT c3.country, SUM(p.amount) tot_payments from payment p
+    INNER JOIN customer c on p.customer_id = c.customer_id
+    INNER JOIN address a on c.address_id = a.address_id
+    INNER JOIN city c2 on a.city_id = c2.city_id
+    INNER JOIN country c3 on c2.country_id = c3.country_id
+GROUP BY c3.country;
+
+CREATE VIEW country_payments
+    AS
+        SELECT c.country,
+               (SELECT SUM(p.amount) FROM city ct
+                   INNER JOIN address a on ct.city_id = a.city_id
+                   INNER JOIN customer cst on a.address_id = cst.address_id
+                   INNER JOIN payment p on cst.customer_id = p.customer_id
+                WHERE c.country_id = ct.country_id) tot_payments    -- USING scalar subquery
+            FROM country c;
+
+-- - Metadata
+--   - Data about database objects - Data dictionary / system catalog
+--     - Oracle [Views - user_tables & all_contraints], [System-stored procedures - dbms_metadata package]
+--     - SQL Server [System-stored procedures - sp_tables procedure], [special schema - information_schema]
+--     - MySQL Server [special database - information_schema]
+USE information_schema;
+SELECT table_name, table_type FROM tables WHERE table_schema = 'sakila' ORDER BY 1;
+SELECT * FROM views WHERE table_schema = 'sakila' ORDER BY 1;
+
+-- 2020-06-04
+-- - Transactions
+show table status like 'customer';
+-- - Engines
+--   - MyISAM:  A non-transactional engine employing table locking
+--   - Memory:  A non-transactional engine used for in-memory tables
+--   - CSV:     A transactional engine that stores data in comma-seperated files
+--   - InnoDB:  A transactional engine employing row level locking
+--   - Merge:   A speciality engine used to make multiple identical MyISAM tables appear as a single task(a.k.a. partitioning)
+--   - Archive: A speciality engine used to store large amounts of unindexed data, mainly for archival purposes
+
+-- - Indexes and Constraints
+EXPLAIN SELECT first_name, last_name FROM customer WHERE last_name LIKE 'Y%';   -- Table scan access
+SHOW indexes IN customer;
+ALTER TABLE customer ADD INDEX idx_email (email);   -- Index
+ALTER TABLE customer ADD UNIQUE INDEX idx_email (email);    -- Unique Indexes
+ALTER TABLE customer ADD UNIQUE INDEX idx_full_name (first_name, last_name);    -- Multi-column Indexes, will be only useful in case of searching first_name and last_name or first_name only
+SHOW INDEX FROM customer;
+ALTER TABLE customer DROP INDEX idx_email;
+--   - Indexes: B-Tree, BitMap, Text
+
+-- - Constraints
+--   - Primary Key, Foreign Key, Unique, Check (Restrict the allowable values for a column)
+
+-- 2020-06-03
+-- - Conditional Logic
+
+SELECT monthname(rental_date) rental_month, count(*) num_rentals FROM rental WHERE rental_date BETWEEN '2005-05-01' AND '2005-08-01' GROUP BY monthname(rental_date);
+--   - Transposing rows to columns
+SELECT
+  SUM(CASE WHEN monthname(rental_date) = 'May' THEN 1
+   ELSE 0 END) May_rentals,
+  SUM(CASE WHEN monthname(rental_date) = 'June' THEN 1
+   ELSE 0 END) June_rentals,
+  SUM(CASE WHEN monthname(rental_date) = 'July' THEN 1
+   ELSE 0 END) July_rentals
+ FROM rental WHERE rental_date BETWEEN '2005-05-01' AND '2005-08-01';   -- ResultSet Transformation
+
+SELECT a.first_name, a.last_name,
+  CASE
+   WHEN EXISTS (SELECT 1 FROM film_actor fa INNER JOIN film f ON fa.film_id = f.film_id WHERE fa.actor_id = a.actor_id AND f.rating = 'G') THEN 'Y' -- Checking for existence
+   ELSE 'N'
+  END g_actor,
+  CASE
+   WHEN EXISTS (SELECT 1 FROM film_actor fa INNER JOIN film f ON fa.film_id = f.film_id WHERE fa.actor_id = a.actor_id AND f.rating = 'PG') THEN 'Y'
+   ELSE 'N'
+  END pg_actor,
+  CASE
+   WHEN EXISTS (SELECT 1 FROM film_actor fa INNER JOIN film f ON fa.film_id = f.film_id WHERE fa.actor_id = a.actor_id AND f.rating = 'NC-17') THEN 'Y'
+   ELSE 'N'
+  END nc17_actor
+ FROM actor a
+  WHERE a.last_name LIKE 'S%' OR a.first_name LIKE 'S%';
+
+SELECT f.title,
+  CASE (SELECT count(*) FROM inventory i WHERE i.film_id = f.film_id)   -- Expression in CASE only
+   WHEN 0 THEN 'Out Of Stock'
+   WHEN 1 THEN 'Scarce'
+   WHEN 2 THEN 'Scarce'
+   WHEN 3 THEN 'Available'
+   WHEN 4 THEN 'Available'
+   ELSE 'Common'
+  END film_availability
+ FROM film f;   -- Simple case statement
+
+SELECT c.first_name, c.last_name, sum(p.amount) tot_payment_amt, count(p.amount) num_payments,
+  sum(p.amount) /
+   CASE WHEN count(p.amount) = 0 THEN 1
+    ELSE count(p.amount)
+   END avg_payment
+ FROM customer c
+  LEFT OUTER JOIN payment p ON c.customer_id = p.customer_id
+ GROUP BY c.first_name, c.last_name;    -- Safe-guarding against division by zero
+
+UPDATE customer
+  SET active =
+   CASE
+    WHEN 90 <= (SELECT datediff(now(), max(rental_date)) FROM rental r WHERE r.customer_id = customer.customer_id)
+     THEN 0
+    ELSE 1
+   END
+ WHERE active = 1;  -- Conditional Updates
+
+SELECT c.first_name, c.last_name,
+  CASE
+    WHEN a.address IS NULL THEN 'Unknown'
+    ELSE a.address
+  END address,
+  CASE
+    WHEN ct.city IS NULL THEN 'Unknown'
+    ELSE ct.city
+  END city,
+  CASE
+    WHEN cn.country IS NULL THEN 'Unknown'
+    ELSE cn.country
+  END country
+FROM customer c
+  LEFT OUTER JOIN address a ON c.address_id = a.address_id
+  LEFT OUTER JOIN city ct ON a.city_id = ct.city_id
+  LEFT OUTER JOIN country cn ON ct.country_id = cn.country_id;  -- Handling null values
+
+SELECT name,
+  CASE
+   WHEN name IN ('English', 'Italian', 'French', 'German') THEN 'latin1'
+   WHEN name IN ('Japanese', 'Mandarin') THEN 'utf8'
+   ELSE 'Unknown'
+  END character_set
+ FROM language
+
+SELECT SUM(CASE WHEN rating = 'PG' THEN 1 ELSE 0 END) pg_count,
+  SUM(CASE WHEN rating = 'G' THEN 1 ELSE 0 END) g_count,
+  SUM(CASE WHEN rating = 'NC-17' THEN 1 ELSE 0 END) nc17_count,
+  SUM(CASE WHEN rating = 'PG-13' THEN 1 ELSE 0 END) pg13_count,
+  SUM(CASE WHEN rating = 'R' THEN 1 ELSE 0 END) r_count
+ FROM film;
 
 -- 2020-06-02
 use mysql;
