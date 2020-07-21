@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Spring101Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="spring-101" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="learn.spring.boot.Spring101Application" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
