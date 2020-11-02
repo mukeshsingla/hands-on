@@ -1,0 +1,22 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: default-pv
+spec:
+  capacity:
+    storage: 10Gi
+  local:
+    path: /home/msingla/development/k8s/storage
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  volumeMode: Filesystem
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - homelab
