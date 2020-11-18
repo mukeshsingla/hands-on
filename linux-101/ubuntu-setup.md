@@ -13,31 +13,38 @@ echo "set showmode" >> ~/.vimrc	# Shows insert mode in VI editor
 
 apt install vim-gui-common
 
-## USB Wifi Drivers - https://forums.developer.nvidia.com/t/rtl88x2bu-wifi-usb-adapter-0bda-b812/106920
+## USB Wifi Drivers
+https://forums.developer.nvidia.com/t/rtl88x2bu-wifi-usb-adapter-0bda-b812/106920
 
-#for finding device details - https://medium.com/@EThaiZone/my-stupid-when-i-try-to-install-usb-device-driver-on-linux-2a8d052bc04c
-lsusb
-sudo apt update && sudo apt upgrade -y
-sudo apt install build-essential dkms git
-cd /home/msingla/Downloads/
-git clone https://github.com/cilynx/rtl88x2bu.git
-cd rtl88x2bu/
-VER=$(sed -n 's/\PACKAGE_VERSION="\(.*\)"/\1/p' dkms.conf)
-sudo rsync -rvhP ./ /usr/src/rtl88x2bu-${VER}
-sudo dkms add -m rtl88x2bu -v ${VER}
-sudo dkms build -m rtl88x2bu -v ${VER}
-sudo dkms install -m rtl88x2bu -v ${VER}
-sudo modprobe 88x2bu
+#for finding device details
+
+https://medium.com/@EThaiZone/my-stupid-when-i-try-to-install-usb-device-driver-on-linux-2a8d052bc04c
+
+    lsusb
+    sudo apt update && sudo apt upgrade -y
+    sudo apt install build-essential dkms git
+    cd /home/msingla/Downloads/
+    git clone https://github.com/cilynx/rtl88x2bu.git
+    cd rtl88x2bu/
+    VER=$(sed -n 's/\PACKAGE_VERSION="\(.*\)"/\1/p' dkms.conf)
+    sudo rsync -rvhP ./ /usr/src/rtl88x2bu-${VER}
+    sudo dkms add -m rtl88x2bu -v ${VER}
+    sudo dkms build -m rtl88x2bu -v ${VER}
+    sudo dkms install -m rtl88x2bu -v ${VER}
+    sudo modprobe 88x2bu
 
 Drivers will be installed
 
-modinfo 88x2bu
-lshw -C network
-rfkill list
+    modinfo 88x2bu
+    lshw -C network
+    rfkill list
 
 
 
-## For extending life of SSD - https://easylinuxtipsproject.blogspot.com/p/ssd.html#ID4
+## For extending life of SSD 
+
+https://easylinuxtipsproject.blogspot.com/p/ssd.html#ID4
+
 	- After the installation: noatime
 	- Limiting swap wear
 	- Limiting the disk write actions of Firefox
@@ -55,14 +62,16 @@ systemctl status fstrim.timer
 	
 ## LVM based RAID setup
 
-### RAID Setup - https://www.digitalocean.com/community/tutorials/how-to-create-raid-arrays-with-mdadm-on-ubuntu-18-04#creating-a-raid-1-array
+### RAID Setup
 
-fdisk -l	# then follow above instructions after doing 
-parted /dev/sdb mklabel msdos
-parted /dev/sdc mklabel msdos
+https://www.digitalocean.com/community/tutorials/how-to-create-raid-arrays-with-mdadm-on-ubuntu-18-04#creating-a-raid-1-array
 
-fdisk /dev/sdb
-fdisk /dev/sdc
+    fdisk -l	# then follow above instructions after doing 
+    parted /dev/sdb mklabel msdos
+    parted /dev/sdc mklabel msdos
+    
+    fdisk /dev/sdb
+    fdisk /dev/sdc
 
 #mdadm --examine /dev/sdb1 /dev/sdc1
 #mdadm --create /dev/md0 --level=mirror --raid-devices=2 /dev/sdb1 /dev/sdc1
