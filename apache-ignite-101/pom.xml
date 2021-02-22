@@ -22,7 +22,7 @@
         <maven.compiler.source>14</maven.compiler.source>
         <maven.compiler.target>14</maven.compiler.target>
 
-        <ignite.version>2.8.0</ignite.version>
+        <ignite.version>2.8.1</ignite.version>
         <!--<gridgain-ignite.version>8.7.14</gridgain-ignite.version>-->
 
         <log4j2.version>2.13.2</log4j2.version>
