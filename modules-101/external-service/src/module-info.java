@@ -1,5 +1,4 @@
 import learn.jpms.service.another.ImplementingModuleServiceImpl;
-import learn.jpms.service.spi.ServiceSpecification;
 
 //open module provider2 {
 module jpms.externalService {
