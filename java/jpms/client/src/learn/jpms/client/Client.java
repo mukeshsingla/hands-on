@@ -4,7 +4,6 @@ package learn.jpms.client;
 import learn.jpms.service.spi.ServiceSpecification;
 
 import java.lang.reflect.Field;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ServiceLoader;
 
