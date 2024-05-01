@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.0-M5</version>
+        <version>3.2.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>learn</groupId>
@@ -15,8 +15,7 @@
     <description>Demo project for Spring Boot</description>
 
     <properties>
-        <java.version>19</java.version>
-        <spring-boot-admin.version>3.0.0-M5</spring-boot-admin.version>
+        <spring-boot-admin.version>3.2.5</spring-boot-admin.version>
     </properties>
 
     <dependencies>
@@ -95,7 +94,7 @@
             <dependency>
                 <groupId>io.projectreactor</groupId>
                 <artifactId>reactor-bom</artifactId>
-                <version>2020.0.6</version>
+                <version>2023.0.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
